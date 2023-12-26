@@ -1,67 +1,76 @@
-namespace DesafioFundamentos.Models
+using System;
+using System.Collections.Generic;
+
+namespace SistemaParaUmEstacionamento
 {
-    public class Estacionamento
+    class Estacionamento
     {
-        private decimal precoInicial = 0;
-        private decimal precoPorHora = 0;
-        private List<string> veiculos = new List<string>();
+        private List<string> veiculos = new List<string>(); // Lista de placas dos veículos no estacionamento
+        private Dictionary<string, DateTime> horaEntradaVeiculos = new Dictionary<string, DateTime>(); // Hora de entrada de cada veículo
+        private Dictionary<string, DateTime> horaSaidaVeiculos = new Dictionary<string, DateTime>(); // Hora de saída de cada veículo
+        private Dictionary<string, decimal> valorAPagarVeiculos = new Dictionary<string, decimal>(); // Valor a pagar por cada veículo
 
-        public Estacionamento(decimal precoInicial, decimal precoPorHora)
+        // Método para adicionar um veículo ao estacionamento
+        public void AdicionarVeiculo(string placa)
         {
-            this.precoInicial = precoInicial;
-            this.precoPorHora = precoPorHora;
+            veiculos.Add(placa);
+            horaEntradaVeiculos[placa] = DateTime.Now; // Registra a hora de entrada como a hora atual
         }
 
-        public void AdicionarVeiculo()
+        // Método para remover um veículo do estacionamento
+        public void RemoverVeiculo(string placa)
         {
-            // TODO: Pedir para o usuário digitar uma placa (ReadLine) e adicionar na lista "veiculos"
-            // *IMPLEMENTE AQUI*
-            Console.WriteLine("Digite a placa do veículo para estacionar:");
-        }
-
-        public void RemoverVeiculo()
-        {
-            Console.WriteLine("Digite a placa do veículo para remover:");
-
-            // Pedir para o usuário digitar a placa e armazenar na variável placa
-            // *IMPLEMENTE AQUI*
-            string placa = "";
-
-            // Verifica se o veículo existe
-            if (veiculos.Any(x => x.ToUpper() == placa.ToUpper()))
+            if (veiculos.Contains(placa))
             {
-                Console.WriteLine("Digite a quantidade de horas que o veículo permaneceu estacionado:");
-
-                // TODO: Pedir para o usuário digitar a quantidade de horas que o veículo permaneceu estacionado,
-                // TODO: Realizar o seguinte cálculo: "precoInicial + precoPorHora * horas" para a variável valorTotal                
-                // *IMPLEMENTE AQUI*
-                int horas = 0;
-                decimal valorTotal = 0; 
-
-                // TODO: Remover a placa digitada da lista de veículos
-                // *IMPLEMENTE AQUI*
-
-                Console.WriteLine($"O veículo {placa} foi removido e o preço total foi de: R$ {valorTotal}");
-            }
-            else
-            {
-                Console.WriteLine("Desculpe, esse veículo não está estacionado aqui. Confira se digitou a placa corretamente");
+                veiculos.Remove(placa);
+                horaEntradaVeiculos.Remove(placa);
+                horaSaidaVeiculos.Remove(placa);
+                valorAPagarVeiculos.Remove(placa);
             }
         }
 
+        // Método para listar os veículos no estacionamento
         public void ListarVeiculos()
         {
-            // Verifica se há veículos no estacionamento
-            if (veiculos.Any())
+            Console.WriteLine("Veículos no estacionamento:");
+            foreach (var placa in veiculos)
             {
-                Console.WriteLine("Os veículos estacionados são:");
-                // TODO: Realizar um laço de repetição, exibindo os veículos estacionados
-                // *IMPLEMENTE AQUI*
+                Console.WriteLine($"Placa: {placa}");
             }
-            else
+        }
+
+        // Método para registrar a hora de entrada de um veículo
+        public void RegistrarHoraEntrada(string placa, DateTime horaEntrada)
+        {
+            horaEntradaVeiculos[placa] = horaEntrada;
+        }
+
+        // Método para registrar a hora de saída de um veículo
+        public void RegistrarHoraSaida(string placa, DateTime horaSaida)
+        {
+            horaSaidaVeiculos[placa] = horaSaida;
+        }
+
+        // Método para definir o valor a pagar por um veículo
+        public void DefinirValorAPagar(string placa, decimal valorAPagar)
+        {
+            valorAPagarVeiculos[placa] = valorAPagar;
+        }
+
+        // Método para finalizar a estadia de um veículo e calcular o valor a pagar
+        public decimal FinalizarVeiculo(string placa)
+        {
+            decimal precoTotal = 0;
+            if (veiculos.Contains(placa) && horaSaidaVeiculos.ContainsKey(placa))
             {
-                Console.WriteLine("Não há veículos estacionados.");
+                DateTime horaEntrada = horaEntradaVeiculos[placa];
+                DateTime horaSaida = horaSaidaVeiculos[placa];
+                TimeSpan permanencia = horaSaida - horaEntrada;
+                decimal precoPorHora = valorAPagarVeiculos[placa];
+                precoTotal = precoPorHora * (decimal)permanencia.TotalHours;
+                RemoverVeiculo(placa); // Remove o veículo após finalizar
             }
+            return precoTotal;
         }
     }
 }
